@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.DirectoryServices.ActiveDirectory;
-using System.Text;
+﻿using System.Data;
 
 namespace CPUWindowsFormFramework
 {
@@ -22,22 +18,28 @@ namespace CPUWindowsFormFramework
         public static void SetControlBinding(Control ctrl, BindingSource bindsource)
         {
             string propertyname = "";
-            string controlname = ctrl.Name.ToLower();
-            string controltype = controlname.Substring(0, 3);
-            string coloumnname = controlname.Substring(3);
-            switch (controltype)
+            if (ctrl != null)
             {
-                case "txt":
-                case "lbl":
-                    propertyname = "Text";
-                    break;
-                case "dtp":
-                    propertyname = "Value";
-                    break;
-            }
-            if (propertyname != "" && coloumnname != "")
-            {
-                ctrl.DataBindings.Add(propertyname, bindsource, coloumnname, true, DataSourceUpdateMode.OnPropertyChanged);
+                string controlname = ctrl.Name.ToLower();
+                string controltype = controlname.Substring(0, 3);
+                string coloumnname = controlname.Substring(3);
+                switch (controltype)
+                {
+                    case "txt":
+                    case "lbl":
+                        propertyname = "Text";
+                        break;
+                    case "dtp":
+                        propertyname = "Value";
+                        break;
+                    case "cbx":
+                        propertyname = "Checked";
+                        break;
+                }
+                if (propertyname != "" && coloumnname != "")
+                {
+                    ctrl.DataBindings.Add(propertyname, bindsource, coloumnname, true, DataSourceUpdateMode.OnPropertyChanged);
+                }
             }
         }
 
@@ -53,7 +55,6 @@ namespace CPUWindowsFormFramework
         {
             grid.EditMode = DataGridViewEditMode.EditOnEnter;
             DoFormatGrid(grid, tablename);
-
         }
 
         public static void DoFormatGrid(DataGridView grid, string tablename)
@@ -77,13 +78,18 @@ namespace CPUWindowsFormFramework
         public static int GetIdFromGrid(DataGridView grid, int rowindex, string coloumnname)
         {
             int id = 0;
-            if (rowindex < grid.Rows.Count && grid.Columns.Contains(coloumnname) && grid.Rows[rowindex].Cells[coloumnname].Value != DBNull.Value)
+            if (rowindex >= 0)
             {
-                if (grid.Rows[rowindex].Cells[coloumnname].Value is int)
+                
+                if (rowindex < grid.Rows.Count && grid.Columns.Contains(coloumnname) && grid.Rows[rowindex].Cells[coloumnname].Value != DBNull.Value)
                 {
-                    id = (int)grid.Rows[rowindex].Cells[coloumnname].Value;
-                }
+                    if (grid.Rows[rowindex].Cells[coloumnname].Value is int)
+                    {
+                        id = (int)grid.Rows[rowindex].Cells[coloumnname].Value;
+                    }
 
+                }
+              
             }
             return id;
         }
@@ -106,6 +112,7 @@ namespace CPUWindowsFormFramework
             c.DisplayMember = displaymember;
             c.ValueMember = tablename + "id";
             c.DataPropertyName = c.ValueMember;
+            c.HeaderText = tablename;
             c.HeaderText = tablename;
             grid.Columns.Insert(0, c);
         }
@@ -165,5 +172,9 @@ namespace CPUWindowsFormFramework
             }
         }
 
+        public static void DataError()
+        {
+            MessageBox.Show("The value you entered is not valid. Please check your entry and try again.");
+        }
     }
 }
